@@ -1,42 +1,57 @@
 package com.revature.AccountManager.Entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sun.istack.NotNull;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 public class BankUser {
+
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     //Unique user id
     private Long id;
 
+    @Column(nullable = false, unique = true, length = 6)
+    private String customerID;
+
     //User password
+    @Column(nullable = false)
     private String password;
 
     //PAN
+    @Column(nullable = false, unique = true)
     private Integer PAN;
 
     //Citizen UID
+    @Column(nullable = false)
     private Integer citizenUID;
 
     //Name
+    @Column(nullable = false)
     private String name;
 
     //Postal Address
+    @Column(nullable = false)
     private String address;
 
     //Email
+    @Column(nullable = false)
     private String email;
-
     //DoB
+    @Column(nullable = false)
     private LocalDate dateOfBirth;
 
     //Role of the user: "Account Holder" and "Bank Manager"
+    @Column(nullable = false)
     private String role;
 
     @OneToMany(mappedBy="user")
@@ -51,6 +66,14 @@ public class BankUser {
     }
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getCustomerID() {
+        return customerID;
+    }
+
+    public void setCustomerID(String customerID) {
+        this.customerID = customerID;
     }
 
     public String getPassword() {

@@ -1,22 +1,28 @@
 package com.revature.AccountManager.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-public class BankAccount {
+public class BankAccount implements Serializable {
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    //User id, also referred to as customer ID
-    private Long accountNumber;
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    //Unique id
+    private Long id;
+
+    @Column(unique = true, length = 10, nullable = false)
+    private String accountNumber;
+
 
     //User that owns the account
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "id")
-    @JsonManagedReference(value = "userAccount")
+    @JsonBackReference(value = "userAccount")
     private BankUser user;
 
     @OneToMany(mappedBy="primaryAccount")
@@ -28,19 +34,31 @@ public class BankAccount {
     private Set<Transaction> secondaryTransactions = new HashSet<>();;
 
     //Balance of the account.
-    private Number balance;
+    @Column(nullable = false)
+    private Float balance;
+
+    //whether the account is active or terminated.
+    //private String status;
 
 
 
     //Getters and setters
 
-    public Long getAccountNumber() {
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getAccountNumber() {
         return accountNumber;
     }
 
-    public void setAccountNumber(Long accountNumber) {
+    public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
     }
+
     public Number getCustomerID() {
         return user.getId();
     }
@@ -51,10 +69,10 @@ public class BankAccount {
         this.user = user;
     }
 
-    public Number getBalance() {
+    public Float getBalance() {
         return balance;
     }
-    public void setBalance(Number balance) {
+    public void setBalance(Float balance) {
         this.balance = balance;
     }
 

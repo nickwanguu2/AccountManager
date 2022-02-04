@@ -1,12 +1,16 @@
 package com.revature.AccountManager.Controllers;
 
-import com.revature.AccountManager.Entities.BankAccount;
 import com.revature.AccountManager.Entities.BankUser;
-import com.revature.AccountManager.Services.BankAccountService;
+import com.revature.AccountManager.Exceptions.InvalidUserException;
+import com.revature.AccountManager.Exceptions.WrongPasswordException;
 import com.revature.AccountManager.Services.BankUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Random;
+
+import static java.lang.String.valueOf;
 
 @RestController
 @RequestMapping("/user")
@@ -17,37 +21,36 @@ public class BankUserController {
 
     // get a user
     @GetMapping("/{id}")
-    public ResponseEntity<BankUser> getUserById(@PathVariable Long id) {
+    public ResponseEntity<BankUser> getUserById(@PathVariable Long id) throws InvalidUserException {
         BankUser bankUser = bankUserService.findById(id);
-        HttpStatus status;
-        if (bankUser == null) {
-            status = HttpStatus.NOT_FOUND;
+        return new ResponseEntity<>(bankUser, HttpStatus.OK);
+    }
+    //login
+    @GetMapping("/login")
+    public ResponseEntity<Object> login(@RequestBody BankUser bankUser) throws WrongPasswordException, InvalidUserException {
+        BankUser validBankUser = bankUserService.findById(bankUser.getId());
+        if (bankUser.getPassword().equals(validBankUser.getPassword())){
+            return new ResponseEntity<>(validBankUser, HttpStatus.OK);
         } else {
-            status = HttpStatus.OK;
+            throw new WrongPasswordException("The password is incorrect.");
         }
-
-        return new ResponseEntity<>(bankUser, status);
     }
 
     // add a user
     @PostMapping("/add")
-    public BankUser addBankUser(@RequestBody BankUser bankUser) {
-        return bankUserService.saveBankUser(bankUser);
+    public ResponseEntity<BankUser> addBankUser(@RequestBody BankUser bankUser) {
+        bankUser.setRole("Account Holder");
+        var rng = new Random();
+        var custID = rng.nextInt(900000) + 100000;
+        bankUser.setCustomerID(valueOf(custID));
+        return new ResponseEntity<>(bankUserService.saveBankUser(bankUser), HttpStatus.OK);
     }
 
-    // update uset
+    // update user
     @PutMapping("/update")
-    public ResponseEntity<BankUser> updateBankUser(@RequestBody BankUser bankUser) {
-        BankUser currentBankUser = bankUserService.findById(bankUser.getId());
-        HttpStatus status;
-        if (currentBankUser == null) {
-            status = HttpStatus.NOT_FOUND;
-        } else {
-            currentBankUser = bankUserService.updateBankUser(bankUser);
-            status = HttpStatus.OK;
-        }
-
-        return new ResponseEntity<>(currentBankUser, status);
+    public ResponseEntity<BankUser> updateBankUser(@RequestBody BankUser bankUser) throws InvalidUserException {
+        bankUserService.findById(bankUser.getId());
+        return new ResponseEntity<>(bankUserService.updateBankUser(bankUser), HttpStatus.OK);
     }
     //users cannot be deleted.
 

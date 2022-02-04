@@ -1,13 +1,17 @@
 package com.revature.AccountManager.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sun.istack.NotNull;
 import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
-public class Transaction {
+public class Transaction implements Serializable {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -15,27 +19,43 @@ public class Transaction {
 
     //Primary User of the Transaction
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "primaryAccountTransaction", referencedColumnName = "accountNumber")
-    @JsonManagedReference(value = "primaryAccount")
+    @JoinColumn(name = "primaryAccountTransaction", referencedColumnName = "accountNumber", nullable = false)
+    @JsonBackReference(value = "primaryAccount")
     private BankAccount primaryAccount;
+
+    private String primaryAccountNumber;
+
+    private Float primaryAmountBefore;
+
+    private Float primaryAmountAfter;
 
     //Secondary User of the Transaction
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "secondaryAccountTransaction", referencedColumnName = "accountNumber")
-    @JsonManagedReference(value = "secondaryAccount")
+    @JsonBackReference(value = "secondaryAccount")
     private BankAccount secondaryAccount;
 
+    private String secondaryAccountNumber;
+
+    private Float secondaryAmountBefore;
+
+    private Float secondaryAmountAfter;
+
     //date of transaction
-    private Date timeOfTransaction;
+    @Column(nullable = false)
+    private LocalDateTime timeOfTransaction;
 
     //cash, debit
+    @Column(nullable = false)
     private String paymentType;
 
     //Withdrawal, transfer, or deposit;
+    @Column(nullable = false)
     private String transactionType;
 
     //Amount of money in transaction;
-    private Number transactionAmount;
+    @Column(nullable = false)
+    private Float transactionAmount;
 
     public Long getTransactionID() {
         return transactionID;
@@ -51,6 +71,27 @@ public class Transaction {
         this.primaryAccount = primaryAccount;
     }
 
+    public String getPrimaryAccountNumber() {
+        return primaryAccountNumber;
+    }
+    public void setPrimaryAccountNumber(String primaryAccountNumber) {
+        this.primaryAccountNumber = primaryAccountNumber;
+    }
+
+    public Float getPrimaryAmountBefore() {
+        return primaryAmountBefore;
+    }
+    public void setPrimaryAmountBefore(Float primaryAmountBefore) {
+        this.primaryAmountBefore = primaryAmountBefore;
+    }
+
+    public Float getPrimaryAmountAfter() {
+        return primaryAmountAfter;
+    }
+    public void setPrimaryAmountAfter(Float primaryAmountAfter) {
+        this.primaryAmountAfter = primaryAmountAfter;
+    }
+
     public BankAccount getSecondaryAccount() {
         return secondaryAccount;
     }
@@ -58,10 +99,31 @@ public class Transaction {
         this.secondaryAccount = secondaryAccount;
     }
 
-    public Date getTimeOfTransaction() {
+    public String getSecondaryAccountNumber() {
+        return secondaryAccountNumber;
+    }
+    public void setSecondaryAccountNumber(String secondaryAccountNumber) {
+        this.secondaryAccountNumber = secondaryAccountNumber;
+    }
+
+    public Float getSecondaryAmountBefore() {
+        return secondaryAmountBefore;
+    }
+    public void setSecondaryAmountBefore(Float secondaryAmountBefore) {
+        this.secondaryAmountBefore = secondaryAmountBefore;
+    }
+
+    public Float getSecondaryAmountAfter() {
+        return secondaryAmountAfter;
+    }
+    public void setSecondaryAmountAfter(Float secondaryAmountAfter) {
+        this.secondaryAmountAfter = secondaryAmountAfter;
+    }
+
+    public LocalDateTime getTimeOfTransaction() {
         return timeOfTransaction;
     }
-    public void setTimeOfTransaction(Date timeOfTransaction) {
+    public void setTimeOfTransaction(LocalDateTime timeOfTransaction) {
         this.timeOfTransaction = timeOfTransaction;
     }
 
@@ -79,10 +141,10 @@ public class Transaction {
         this.transactionType = transactionType;
     }
 
-    public Number getTransactionAmount() {
+    public Float getTransactionAmount() {
         return transactionAmount;
     }
-    public void setTransactionAmount(Number transactionAmount) {
+    public void setTransactionAmount(Float transactionAmount) {
         this.transactionAmount = transactionAmount;
     }
 }
